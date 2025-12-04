@@ -10,7 +10,7 @@
 - Parses `set`, `print`, basic `Expr` (`x > 0`, `x - 1`)
 - Denotational semantics: `State = Name → Option Nat`
 - Lean 4 code generation
-- Modular IR architecture (`Ast/Base.lean` interface)
+- Modular IR architecture (`Ast/Base.lean` interface) for support multi-grammars with a single UniversalGrammar inspired interface
 
 ## 📁 File Structure
 
