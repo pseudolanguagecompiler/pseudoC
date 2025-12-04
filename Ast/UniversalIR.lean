@@ -21,37 +21,39 @@ deriving Repr, BEq
 
 abbrev State := String → Option Nat
 
--- Denotational semantics
-def evalExpr : Expr → State → Nat
+-- REAL DENOTATIONAL SEMANTICS ⟦e⟧, ⟦S⟧
+notation:50 s " ⟦ " e:51 " ⟧" => denoteExpr e s
+notation:50 "⟦ " S:51 " ⟧" => denoteStmt S
+
+def denoteExpr : Expr → State → Nat
   | .var x, s => s x |>.getD 0
   | .num n, _ => n
-  | .binOp .add l r, s => evalExpr l s + evalExpr r s
-  | .binOp .sub l r, s => evalExpr l s - evalExpr r s
-  | .binOp .gt l r, s => if evalExpr l s > evalExpr r s then 1 else 0
+  | .binOp .add l r, s => ⟦l⟧ s + ⟦r⟧ s
+  | .binOp .sub l r, s => ⟦l⟧ s - ⟦r⟧ s
+  | .binOp .gt l r, s => if ⟦l⟧ s > ⟦r⟧ s then 1 else 0
 
-def evalStmt : Stmt → State → State
-  | .assign x e, s => fun y => if y == x then some (evalExpr e s) else s y
-  | .print e, s => do let _ ← IO.println (toString (evalExpr e s)); pure (fun y => s y)
-  | .if_ cond then_ else_, s => 
-    if evalExpr cond s ≠ 0 then 
-      else_.foldl (init := s) (· ∘ evalStmt ·)
-    else 
-      then_.foldl (init := s) (· ∘ evalStmt ·)
+def denoteStmt : Stmt → (State → State)
+  | .assign x e, s => fun y => if y == x then some (⟦e⟧ s) else s y
+  | .print e, s   => s  -- Pure denotation (side effects abstracted)
+  | .if_ cond t e, s => 
+      if ⟦cond⟧ s ≠ 0 then t.foldl (init := s) (· ∘ ⟦·⟧) else e.foldl (init := s) (· ∘ ⟦·⟧)
   | .while cond body, s => 
-    if evalExpr cond s ≠ 0 then
-      evalStmt (.while cond body) (body.foldl (init := s) (· ∘ evalStmt ·))
-    else s
+      if ⟦cond⟧ s ≠ 0 then ⟦.while cond body⟧ (body.foldl (init := s) (· ∘ ⟦·⟧)) else s
 
-def evalProgram (stmts : List Stmt) (init : State) : IO Nat := do
-  let final := stmts.foldl (init := init) (· ∘ evalStmt ·)
-  pure (final "" |>.getD 0)
+-- Sequential composition (KEY ACADEMIC PROPERTY)
+def seq (s1 s2 : State → State) : State → State := s1 ∘ s2
 
--- IR interface instance
-instance : Ast.IR where
+-- EXECUTABLE VERSION (for Main.lean)
+def execProgram (stmts : List Stmt) (init : State) : IO Unit := do
+  let final := stmts.foldl (init := init) (· ∘ ⟦·⟧)
+  IO.println s!"Final state: {final}"
+
+instance : Ast.IR UniversalIR where
   Expr := Expr
-  Stmt := Stmt  
-  stateType := State
-  evalExpr := evalExpr
-  evalStmt := evalStmt
+  Stmt := Stmt
+  State := State
+  denoteExpr := denoteExpr
+  denoteStmt := denoteStmt
+  seq := seq
 
 end UniversalIR
