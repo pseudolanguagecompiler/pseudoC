@@ -2,6 +2,18 @@
 
 This project implements a student-friendly pseudocode compiler using Lean 4's type system for verified semantics. Parses clean pseudocode → typed AST → denotational semantics → verified Lean/C/JS codegen. Designed for classroom use with future dialect expansion.
 
+
+## To build and run:
+# lake build
+# lake exe pseudocode_compiler test.pseudo
+
+## test.pseudo
+set x := 5;
+while x > 0 do
+  print x;
+  set x := x - 1;
+end
+
 ## Grammar Specification (Phase 1)
 Program    ::= Statement*
 Statement  ::= "set" ID ":=" Expr ";" 
@@ -10,6 +22,8 @@ Statement  ::= "set" ID ":=" Expr ";"
              | "print" Expr ";"
 Expr       ::= ID | Number | "(" Expr ")" | Expr ("+"|"-") Expr
 ID         ::= [a-zA-Z_][a-zA-Z0-9_]*
+
+This pseudocompiler will support multiple grammar implementations inspried by the idea of a universal grammar: https://en.wikipedia.org/wiki/Applicative_universal_grammar
 
 ## Architecture
 Pseudocode → Parser (lean4-parser) → Typed AST → Semantics → Codegen (Lean/C/JS)
