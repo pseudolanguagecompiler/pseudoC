@@ -10,8 +10,6 @@ Universal grammars allow head direction while maintaining core hierarchies, mirr
 
 **Pipeline**: Pseudocode → `UniversalParser` → `UniversalIR` (AST+Semantics) → `ToLean` codegen
 
-🎓 Academic README Addition
-
 ## Formal Properties
 
 -- Prove in Proofs/Semantics.lean or Jupyter:
@@ -23,14 +21,7 @@ theorem seq_compositional : ⟦S1; S2⟧ = ⟦S1⟧ ∘ ⟦S2⟧
 **Proof-ready**: Direct equations for `simp`, `rw` tactics
 
 
-bash
-mkdir -p Ast Proofs Parser Codegen
-# Copy all 4 files above
-lake update
-lake build
-lake exe pseudocode_compiler test.pseudo
-
-## ✅ Current Features
+## Current Features
 - Parses `set`, `print`, basic `Expr` (`x > 0`, `x - 1`)
 - Denotational semantics: `State = Name → Option Nat`
 - Lean 4 code generation
@@ -98,7 +89,7 @@ def evalProgram : List Stmt → State → IO Nat
 text
 
 ## 6-Week Plan (Updated)
-- ✅ **Week 1**: Parser + UniversalIR + Main (done)
+- **Week 1**: Parser + UniversalIR + Main (done)
 - **Week 2**: Full `if/while` parsing + roundtrip tests
 - **Week 3**: Type checker + VerifiedIR
 - **Week 4**: Error recovery + symbol tables
