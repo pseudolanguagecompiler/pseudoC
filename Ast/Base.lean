@@ -1,6 +1,4 @@
 namespace Ast
-
--- Academic IR interface
 class IR (ι : Type) where
   Expr : Type
   Stmt : Type
@@ -8,5 +6,4 @@ class IR (ι : Type) where
   denoteExpr : Expr → State → Nat
   denoteStmt : Stmt → (State → State)
   seq : (State → State) → (State → State) → (State → State)
-
 end Ast
