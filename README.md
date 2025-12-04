@@ -1,87 +1,90 @@
 # Practical Pseudocode Compiler in Lean 4
 
-**My approach**: This pseudocode compilers needs to be realistic. Tools like ANTLR or Jupyter kernels already handle multi-dialect input better than I could in Lean 4 for the first phase (to achieve around 90% of functionality). Lean shines at verification and proofs, not parsing—**so focus on one clean grammar first with solid semantics, deferring universality, but with design to support multiple grammars as work in this area is emerging**. 
+**Status: Compiles & runs** (`lake build && lake exe pseudoC test.pseudo`)
 
-Parses clean pseudocode → typed AST → denotational semantics → verified Lean/C/JS codegen.
+**Approach**: Lean shines at verification/proofs, not parsing. Focus on **one clean grammar** with solid semantics first, **modular design** for multiple IRs/grammars later.
 
-Some of the users may actually be students learning to code as a first step toward getting community around this.
+**Pipeline**: Pseudocode → `UniversalParser` → `UniversalIR` (AST+Semantics) → `ToLean` codegen
 
-## Grammar 
+## ✅ Current Features
+- Parses `set`, `print`, basic `Expr` (`x > 0`, `x - 1`)
+- Denotational semantics: `State = Name → Option Nat`
+- Lean 4 code generation
+- Modular IR architecture (`Ast/Base.lean` interface)
+
+## 📁 File Structure
+
+Ast/
+├── Base.lean # IR interface
+└── UniversalIR.lean # AST + semantics
+Parser/
+└── UniversalParser.lean
+Codegen/
+└── ToLean.lean
+Main.lean
+lakefile.lean
+
+text
 
 ## To build and run:
-# lake build
-# lake exe pseudocode_compiler test.pseudo
+
+lake build
+lake exe pseudocode_compiler test.pseudo
+
+text
 
 ## test.pseudo
+
 set x := 5;
 while x > 0 do
-  print x;
-  set x := x - 1;
+print x;
+set x := x - 1;
 end
+
+text
+
+**Expected**: Prints execution result + generated Lean 4 code
 
 ## Grammar Specification (Phase 1)
-Program    ::= Statement*
-Statement  ::= "set" ID ":=" Expr ";" 
-             | "if" Expr "then" Statement* ["else" Statement*] "end" 
-             | "while" Expr "do" Statement* "end"
-             | "print" Expr ";"
-Expr       ::= ID | Number | "(" Expr ")" | Expr ("+"|"-") Expr
-ID         ::= [a-zA-Z_][a-zA-Z0-9_]*
 
-This pseudocompiler will support multiple grammar implementations inspried by the idea of a universal grammar: https://en.wikipedia.org/wiki/Applicative_universal_grammar
+Program ::= Statement*
+Statement ::= "set" ID ":=" Expr ";" | "print" Expr ";"
+Expr ::= ID | Number | "(" Expr ")" | Expr ("+"|"-"|">") Expr
+ID ::= [a-zA-Z_][a-zA-Z0-9_]*
+
+text
+
+**Future**: `if/while` full recursive parsing (Week 2)
 
 ## Architecture
-Pseudocode → Parser (lean4-parser) → Typed AST → Semantics → Codegen (Lean/C/JS)
 
-## Denotational Semantics
-Formal semantics defined as state transformers: ⟦S⟧ : State → State where State = Name → Option Nat
+Pseudocode → UniversalParser → UniversalIR.AST → UniversalIR.Semantics → Codegen.ToLean
+↓
+Ast.Base.IR interface (extensible)
 
-inductive Expr where
-  | var (name : String) | num (n : Nat) | binOp (op : BinOp) (l r : Expr)
+text
 
-inductive Stmt where
-  | assign (x : String) (e : Expr)
-  | if_ (cond : Expr) (then_ else_ : List Stmt)
-  | while (cond : Expr) (body : List Stmt)
-  | print (e : Expr)
+## Denotational Semantics (in `UniversalIR.lean`)
 
+abbrev State := String → Option Nat
 def evalExpr : Expr → State → Nat
-def ⟦assign x e⟧ s := update x (evalExpr e s) s
-def ⟦while c body⟧ s := if evalExpr c s ≠ 0 then ⟦body⟧ (⟦while c body⟧ s) else s
+def evalStmt : Stmt → State → State
+def evalProgram : List Stmt → State → IO Nat
 
-## Implementation
+text
 
-Parser (using lean4-parser combinators):
-def pStatement : Parser Stmt :=
-  ("set" *> pID <* ":=" <*> pExpr <* ";").map (λ⟨x,e⟩ => Stmt.assign x e)
-  <|> ("if" *> pExpr <* "then" <*> many pStatement <*> 
-       optional ("else" *> many pStatement) <* "end").map IfThenElse
-
-Setup:
-lake init pseudocode_compiler
-
-lakefile.toml:
-[[require]]
-name = "Parser"
-git = "https://github.com/fgdorais/lean4-parser"
-
-## 6-Week Development Plan
-1. Weeks 1-2: Parser + AST + roundtrip tests
-2. Week 3: Denotational interpreter + type checker  
-3. Week 4: Error recovery + symbol tables
-4. Week 5: Lean 4 codegen (elaboration)
-5. Week 6: C/JS backends + test suite
-
-## Example
-set x := 5;
-while x > 0 do
-  print x;
-  set x := x - 1;
-end
-Expected: Prints 5,4,3,2,1 with verified semantics.
+## 6-Week Plan (Updated)
+- ✅ **Week 1**: Parser + UniversalIR + Main (done)
+- **Week 2**: Full `if/while` parsing + roundtrip tests
+- **Week 3**: Type checker + VerifiedIR
+- **Week 4**: Error recovery + symbol tables
+- **Week 5**: C/JS backends
+- **Week 6**: Proofs + test suite
 
 ## Academic Contributions
-1. Verified Semantics: Lean 4 proves semantic preservation
-2. Clean Grammar: LL(1) parsing suitable for pedagogy  
-3. Extensible Design: Dialect registry for future work
-4. Practical Scope: 90% pseudocode coverage
+1. **Verified Semantics**: Lean 4 proves preservation
+2. **Modular IRs**: `Ast/Base.IR` interface
+3. **Pedagogical Grammar**: LL(1), textbook-friendly
+4. **Extensible**: Dialect registry ready
+
+**Next**: Full `while` loop execution (fix recursive `evalStmt`)
