@@ -9,6 +9,21 @@ Join us on Libera Chat! ##pseudocompiler
 ##### *We're trying to formalize the missing link between human pseudocode and verified execution by building the first compiler where Lean proves every parsed program has mathematically identical semantics regardless of syntax, solving education, AI reliability, and multi-paradigm research problems in one framework.*
 ---
 
+## What is λIR & Why Should You Care?
+
+**Compile *human pseudocode* → **verified execution** → any target (Lean/C/JS)**
+
+| **Problem** | **Traditional Compilers** | **λIR (UniversalIR)** | **Your Win** |
+|-------------|---------------------------|-----------------------|--------------|
+| **Write pseudocode** | `set x=5; while x>0 print x; x--` → manual → C/Python | **Parses directly** → math proofs → code | **0 syntax learning** |
+| **AI code gen** | Hallucinations, wrong semantics | **Semantic normalization** → verified | **Reliable AI code** [web:1] |
+| **Teach algorithms** | Students write pseudocode → ? → test | **Students write → lake exe λIR → runs** | **Executable homeworks**|
+| **Multi-language** | Rewrite per target | **One pseudocode → Lean/C/JS/Future paradigm** | **Paradigm freedom**|
+| **Verification** | Unit tests miss bugs | **Lean proves `⟦pseudocode⟧ ≡ execution`** | **Math-level correctness** |
+
+## **30-Second Demo**
+
+
 ## Quick Start
 
 Install Lean4 to compile, run the test file (test.pseudo) which contains some sample pseudo-code you should see this output if everything works (feel free to submit a PR if it does not)
