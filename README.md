@@ -1,5 +1,5 @@
 
-# PseudoC: The Lean4 Pseudocode Compiler 
+# λIR: Lambda IR, the Verified Compilation of Human Pseudocode
 
 **Status**: ✅ Core pipeline compiles & runs. **Bootstrap theorems WIP** (Week 7).
 **Self-hosting**: `pseudo_c_boostrap.pseudo` → Lean4 compiler **(parser/codegen verified)**.
