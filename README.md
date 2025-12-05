@@ -80,8 +80,6 @@ This approach enables **multi-grammar pseudocode compilation** and **semantic-le
 |------|-------------------------|
 | **Termination Proofs** | Grammar-agnostic halting for Chomsky Type-1/2 → beyond CompCertOC |
 | **Complexity Theory** | Rank pseudocode decidability classes (PTIME/EXPTIME) via IR ranking  |
-| **Quantum Hybrids** | `⟦SEARCH QUANTUM⟧ ≡ ⟦BRUTE_FORCE⟧ | fallback` with confluence  |
-
 
 
 ## ⚙️ Pipeline
@@ -274,7 +272,7 @@ Expected: Prints countdown 5 → 1 and outputs generated Lean 4 code equivalent 
 
 ---
 
-## Why a pseudo code compiler? 
+## Multi-paradigm programming
 
 A universal pseudocode compiler enables **adaptive multi-paradigm programming**, dynamically switching computation styles (e.g., imperative to functional, or even supporting other paradigms that have yet to emerge) mid-algorithm based on runtime conditions—impossible in rigid languages like Python or Haskell. For example, `SORT array IMPERATIVELY then MAP functionally` mutates small data like C++ before scaling to parallel map/reduce like Lisp; or, if we imagine something that may not be practical today but will be in the future for example,`SEARCH database QUANTUM else BRUTE_FORCE classically` leverages superposition with classical fallback. This kind of mixed-paradigm approach would be extremely difficult in classical languages. This abstracts "how" to compute via universal grammar, overcoming paradigm lock-in and enabling self-optimizing algorithms across von Neumann, dataflow, logical, and hybrid AI models.
 
