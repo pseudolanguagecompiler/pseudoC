@@ -1,13 +1,15 @@
 # λIR (LambdaIR): Lambda Intermediate Representation
 *Verified Compilation Framework for Human Pseudocode*
 
-**Status**: ✅ Core pipeline compiles & runs. .
+<img width="80" alt="λIR Lamb" height="64" alt="image" src="https://github.com/user-attachments/assets/e90682fd-6281-43ba-bd27-c998253fcbb3" />
 
-**λIR**: (LambdaIR) — *pronounced "LAMB-dair"*
+**λIR**: (LambdaIR) — *pronounced "LAMB-dair"* 
 
 Join us on Libera Chat! ##pseudocompiler (our channel for now)
 
 ##### *We're trying to formalize the missing link between human pseudocode and verified execution by building the first compiler where Lean proves every parsed program has mathematically identical semantics regardless of syntax, solving education, AI reliability, and multi-paradigm research problems in one framework.*
+
+**Status**: ✅ Core pipeline compiles & runs. .
 
 ---
 
