@@ -274,6 +274,8 @@ Expected: Prints countdown 5 → 1 and outputs generated Lean 4 code equivalent 
 
 ## 🧑‍💻 Contributors
 
+We're actively looking for contributors to join our core development team to get this idea off the ground. 
+
 - Core developer — *LydiaQ*  
 - Proofs & semantics — *coming soon, done in jupyter notebook to start* 
 - Design philosophy inspired by **Chomsky's Universal Grammar + Verified Compilation**
