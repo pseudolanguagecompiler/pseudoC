@@ -294,6 +294,10 @@ A universal pseudocode compiler enables **adaptive multi-paradigm programming**,
 
 **No.** Traditional compilers start with **syntax-first** parsing (lexer → parser → AST → semantics), making them brittle to grammar changes. PseudoC is **semantics-first**: UniversalIR + denotational semantics (`⟦Stmt⟧ : State → State`) defined *first*, with parsers as *projections* from surface syntax to this canonical mathematical meaning. Lean theorems prove `⟦Parser₁⟧ ≡ ⟦Parser₂⟧` across grammars.
 
+Research shows human pseudocode converges to ~3 core patterns (imperative/functional/declarative). UniversalIR enables **auto-merging** via structural equivalence and authoformalization techniques, collapsing N→3→1 parsers.
+
+This means despite surface syntax variation, underlying algorithmic paradigms reduce to a few core semantic patterns. UniversalIR captures these patterns mathematically, allowing automatic unification and merging of diverse grammars into a minimal set of verified parsers.
+
 ### Why not just use Python/JavaScript?
 
 Those lack **formal verification**. PseudoC uses Lean's dependent types to prove semantic preservation (`BootstrappedCompiler.sound`), self-hosting (`pseudo_c_bootstrap.pseudo → Lean compiler`), and multi-grammar equivalence—impossible without theorem-proven IR.
