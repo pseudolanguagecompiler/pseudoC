@@ -32,7 +32,7 @@ Input: set x := 5; while x > 0 do ...
 PseudoC parsed successfully
 AST: [While (> x 0) [Print x, Set x (x - 1)]]
 
-# PseudoC - Practical Pseudocode Compiler 
+# How λIR works: The PseudoC backend
 
 
 ` Proto-framework for universal verified compilation or in laymens terms it's the Pseudo-idea for the pseudocode for the pseudo_c compiler`
@@ -44,6 +44,7 @@ The inspiration for this project is to answer a couple questions
 3. Once the pseudocode compiler is built, is it possible to use it to answer reesearch questions around language-agnostic tools?
 4. **[Research Goal]** Can pseudocode + formal semantics reduce AI code hallucinations?
 5. Does pseudocode allow for recursive-self improvement and could PseudoC help to develop a formal RSI framework?
+
 
 ## 🎓 Bootstrap** (Boostrap.lean)
 
