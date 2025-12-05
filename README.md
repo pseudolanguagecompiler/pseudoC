@@ -219,7 +219,7 @@ Expected: Prints countdown 5 → 1 and outputs generated Lean 4 code equivalent 
 ## 🧩 Future Work
 
 - **Verified bytecode VM** with denotational equivalence proof  
-- Multi-language frontends (C-style, Pythonic pseudocode)  see AST folder. We want to be at the edge of human language inspried grammars
+- Multi-language frontends: Verified compilation, denotational semantics, and cutting-edge human language-inspired grammars (we plan to add many more)
 - Compiler tools 
 
 ---
@@ -254,7 +254,7 @@ Those lack **formal verification**. PseudoC uses Lean's dependent types to prove
 
 ### Pseudocode can't be formally verified!
 
-**Wrong.** UniversalIR strips surface syntax for pure denotational semantics. Theorems like `seq_compositional : ⟦S₁;S₂⟧ = ⟦S₁⟧ ∘ ⟦S₂⟧` enable compositional reasoning over *any* human-readable pseudocode, not just rigid C/Python.
+**Wrong.** UniversalIR strips surface syntax for pure denotational semantics. Theorems like `seq_compositional : ⟦S₁;S₂⟧ = ⟦S₁⟧ ∘ ⟦S₂⟧` enable compositional reasoning over *any* human-readable pseudocode, not just rigid C/Python. This is fundamentally what allows the program to be compiled into executable code possibly running on a bare bones VM.
 
 ### Single grammar? Use ANTLR/Yacc!
 
@@ -274,7 +274,7 @@ Lean4 provides **executable proofs**. `lake exe pseudoc test.pseudo` runs native
 
 ### What's the execution model?
 
-**Pure denotational** (`State → State`) → Lean functions → VM/LLVM. Future: verified bytecode VM with `⟦Bytecode⟧ ≡ ⟦UniversalIR⟧` [web:1].
+**Pure denotational** (`State → State`) → Lean functions → VM/LLVM. Future: verified bytecode VM with `⟦Bytecode⟧ ≡ ⟦UniversalIR⟧` 
 \
 ## 🧮 License
 
