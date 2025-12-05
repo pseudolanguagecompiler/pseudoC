@@ -1,0 +1,341 @@
+PROGRAM pseudo_c_boostrap
+
+TYPE Value =
+  | Nat(n : INTEGER)
+  | Bool(b : BOOLEAN)
+
+TYPE State =
+  MAP<STRING, Value>
+
+TYPE Expr =
+  | Num(n : INTEGER)
+  | Var(name : STRING)
+  | BinOp(op : STRING, left : Expr, right : Expr)
+
+TYPE Stmt =
+  | Set(name : STRING, expr : Expr)
+  | Print(expr : Expr)
+  | While(cond : Expr, body : LIST<Stmt>)
+
+TYPE UExpr =
+  | UConst(v : Value)
+  | UVar(name : STRING)
+  | UBin(op : STRING, left : UExpr, right : UExpr)
+
+TYPE UStmt =
+  | UAssign(name : STRING, expr : UExpr)
+  | UOutput(expr : UExpr)
+  | ULoop(cond : UExpr, body : LIST<UStmt>)
+
+TYPE Token =
+  | TIdent(name : STRING)
+  | TNum(n : INTEGER)
+  | TKeyword(word : STRING)
+  | TSymbol(sym : STRING)
+  | TEOF
+
+//--------------------------------------------------
+// LEXER
+//--------------------------------------------------
+
+FUNCTION lex(input : STRING) : LIST<Token>
+  tokens := EMPTY LIST
+  i := 0
+  WHILE i < LENGTH(input) DO
+    ch := input[i]
+    IF ch IS WHITESPACE THEN
+      i := i + 1
+    ELSE IF ch IS DIGIT THEN
+      start := i
+      WHILE i < LENGTH(input) AND input[i] IS DIGIT DO
+        i := i + 1
+      numStr := SUBSTRING(input, start, i)
+      tokens.APPEND(TNum(TO_INTEGER(numStr)))
+    ELSE IF ch IS LETTER THEN
+      start := i
+      WHILE i < LENGTH(input) AND (input[i] IS LETTER OR input[i] IS DIGIT OR input[i] = '_') DO
+        i := i + 1
+      ident := SUBSTRING(input, start, i)
+      IF ident IN {"set","while","do","end","print"} THEN
+        tokens.APPEND(TKeyword(ident))
+      ELSE
+        tokens.APPEND(TIdent(ident))
+    ELSE
+      // handle symbols: ":=", ";", ">", "+", "-", "(", ")", "="
+      IF i + 1 < LENGTH(input) AND input[i] = ':' AND input[i+1] = '=' THEN
+        tokens.APPEND(TSymbol(":="))
+        i := i + 2
+      ELSE
+        tokens.APPEND(TSymbol(STRING(ch)))
+        i := i + 1
+  END WHILE
+  tokens.APPEND(TEOF)
+  RETURN tokens
+END FUNCTION
+
+//--------------------------------------------------
+// PARSER (tokens → Stmt list)
+//--------------------------------------------------
+
+TYPE ParserState =
+  RECORD
+    tokens : LIST<Token>
+    pos    : INTEGER
+  END
+
+FUNCTION current(ps : ParserState) : Token
+  RETURN ps.tokens[ps.pos]
+END FUNCTION
+
+FUNCTION advance(ps : ParserState)
+  ps.pos := ps.pos + 1
+END FUNCTION
+
+FUNCTION expectSymbol(ps : ParserState, sym : STRING)
+  t := current(ps)
+  IF t IS TSymbol(sym) THEN
+    advance(ps)
+  ELSE
+    RAISE "Expected symbol " + sym
+END FUNCTION
+
+FUNCTION expectKeyword(ps : ParserState, kw : STRING)
+  t := current(ps)
+  IF t IS TKeyword(kw) THEN
+    advance(ps)
+  ELSE
+    RAISE "Expected keyword " + kw
+END FUNCTION
+
+FUNCTION expectIdent(ps : ParserState) : STRING
+  t := current(ps)
+  IF t IS TIdent(name) THEN
+    advance(ps)
+    RETURN name
+  ELSE
+    RAISE "Expected identifier"
+END FUNCTION
+
+FUNCTION expectNumber(ps : ParserState) : INTEGER
+  t := current(ps)
+  IF t IS TNum(n) THEN
+    advance(ps)
+    RETURN n
+  ELSE
+    RAISE "Expected number"
+END FUNCTION
+
+FUNCTION parseProgram(ps : ParserState) : LIST<Stmt>
+  stmts := EMPTY LIST
+  WHILE NOT (current(ps) IS TEOF) DO
+    s := parseStmt(ps)
+    stmts.APPEND(s)
+  END WHILE
+  RETURN stmts
+END FUNCTION
+
+FUNCTION parseStmt(ps : ParserState) : Stmt
+  t := current(ps)
+  IF t IS TKeyword("set") THEN
+    RETURN parseSet(ps)
+  ELSE IF t IS TKeyword("while") THEN
+    RETURN parseWhile(ps)
+  ELSE IF t IS TKeyword("print") THEN
+    RETURN parsePrint(ps)
+  ELSE
+    RAISE "Unexpected token at statement"
+END FUNCTION
+
+FUNCTION parseSet(ps : ParserState) : Stmt
+  expectKeyword(ps, "set")
+  name := expectIdent(ps)
+  expectSymbol(ps, ":=")
+  e := parseExpr(ps)
+  expectSymbol(ps, ";")
+  RETURN Set(name, e)
+END FUNCTION
+
+FUNCTION parseWhile(ps : ParserState) : Stmt
+  expectKeyword(ps, "while")
+  cond := parseExpr(ps)
+  expectKeyword(ps, "do")
+  body := EMPTY LIST
+  WHILE NOT (current(ps) IS TKeyword("end")) DO
+    s := parseStmt(ps)
+    body.APPEND(s)
+  END WHILE
+  expectKeyword(ps, "end")
+  RETURN While(cond, body)
+END FUNCTION
+
+FUNCTION parsePrint(ps : ParserState) : Stmt
+  expectKeyword(ps, "print")
+  e := parseExpr(ps)
+  expectSymbol(ps, ";")
+  RETURN Print(e)
+END FUNCTION
+
+FUNCTION parseExpr(ps : ParserState) : Expr
+  left := parseAtom(ps)
+  WHILE TRUE DO
+    t := current(ps)
+    IF t IS TSymbol("+") OR t IS TSymbol("-") OR t IS TSymbol(">") THEN
+      IF t IS TSymbol("+") THEN op := "+"
+      ELSE IF t IS TSymbol("-") THEN op := "-"
+      ELSE op := ">"
+      advance(ps)
+      right := parseAtom(ps)
+      left := BinOp(op, left, right)
+    ELSE
+      BREAK
+  END WHILE
+  RETURN left
+END FUNCTION
+
+FUNCTION parseAtom(ps : ParserState) : Expr
+  t := current(ps)
+  IF t IS TNum(n) THEN
+    advance(ps)
+    RETURN Num(n)
+  ELSE IF t IS TIdent(name) THEN
+    advance(ps)
+    RETURN Var(name)
+  ELSE
+    RAISE "Expected atom"
+END FUNCTION
+
+//--------------------------------------------------
+// NORMALIZATION TO UNIVERSAL IR
+//--------------------------------------------------
+
+FUNCTION normExpr(e : Expr) : UExpr
+  MATCH e WITH
+    CASE Num(n):      RETURN UConst(Nat(n))
+    CASE Var(x):      RETURN UVar(x)
+    CASE BinOp(op,l,r):
+      RETURN UBin(op, normExpr(l), normExpr(r))
+  END MATCH
+END FUNCTION
+
+FUNCTION normStmt(s : Stmt) : UStmt
+  MATCH s WITH
+    CASE Set(x,e):        RETURN UAssign(x, normExpr(e))
+    CASE Print(e):        RETURN UOutput(normExpr(e))
+    CASE While(c, body):
+      normBody := EMPTY LIST
+      FOR each b IN body DO
+        normBody.APPEND(normStmt(b))
+      END FOR
+      RETURN ULoop(normExpr(c), normBody)
+  END MATCH
+END FUNCTION
+
+FUNCTION normProgram(p : LIST<Stmt>) : LIST<UStmt>
+  up := EMPTY LIST
+  FOR each s IN p DO
+    up.APPEND(normStmt(s))
+  END FOR
+  RETURN up
+END FUNCTION
+
+//--------------------------------------------------
+// SEMANTIC EVALUATION (⟦Stmt⟧ : State → State)
+//--------------------------------------------------
+
+FUNCTION stateGet(σ : State, x : STRING) : Value
+  IF σ.CONTAINS(x) THEN
+    RETURN σ[x]
+  ELSE
+    RETURN Nat(0)
+END FUNCTION
+
+FUNCTION stateSet(σ : State, x : STRING, v : Value) : State
+  σ2 := COPY(σ)
+  σ2[x] := v
+  RETURN σ2
+END FUNCTION
+
+FUNCTION asNat(v : Value) : INTEGER
+  IF v IS Nat(n) THEN RETURN n
+  ELSE IF v IS Bool(b) THEN
+    IF b THEN RETURN 1 ELSE RETURN 0
+  END IF
+END FUNCTION
+
+FUNCTION asBool(v : Value) : BOOLEAN
+  IF v IS Bool(b) THEN RETURN b
+  ELSE IF v IS Nat(n) THEN
+    RETURN n <> 0
+  END IF
+END FUNCTION
+
+FUNCTION applyBin(op : STRING, v1 : Value, v2 : Value) : Value
+  n1 := asNat(v1)
+  n2 := asNat(v2)
+  IF op = "+" THEN
+    RETURN Nat(n1 + n2)
+  ELSE IF op = "-" THEN
+    RETURN Nat(n1 - n2)
+  ELSE IF op = ">" THEN
+    RETURN Bool(n1 > n2)
+  ELSE
+    RETURN Nat(0)
+END FUNCTION
+
+FUNCTION evalExprU(e : UExpr, σ : State) : Value
+  MATCH e WITH
+    CASE UConst(v):           RETURN v
+    CASE UVar(x):             RETURN stateGet(σ, x)
+    CASE UBin(op,l,r):
+      v1 := evalExprU(l, σ)
+      v2 := evalExprU(r, σ)
+      RETURN applyBin(op, v1, v2)
+  END MATCH
+END FUNCTION
+
+FUNCTION evalProgramU(p : LIST<UStmt>, σ : State) : State
+  σcur := σ
+  FOR each s IN p DO
+    σcur := evalStmtU(s, σcur)
+  END FOR
+  RETURN σcur
+END FUNCTION
+
+FUNCTION evalStmtU(s : UStmt, σ : State) : State
+  MATCH s WITH
+    CASE UAssign(x, e):
+      v := evalExprU(e, σ)
+      RETURN stateSet(σ, x, v)
+    CASE UOutput(e):
+      v := evalExprU(e, σ)
+      PRINT v
+      RETURN σ
+    CASE ULoop(cond, body):
+      σcur := σ
+      WHILE asBool(evalExprU(cond, σcur)) DO
+        σcur := evalProgramU(body, σcur)
+      END WHILE
+      RETURN σcur
+  END MATCH
+END FUNCTION
+
+//--------------------------------------------------
+// MAIN: FULL PIPELINE
+//--------------------------------------------------
+
+FUNCTION compileAndRun(source : STRING)
+  tokens := lex(source)
+  ps := ParserState(tokens = tokens, pos = 0)
+  prog := parseProgram(ps)
+  uprog := normProgram(prog)
+  initialState := EMPTY MAP
+  finalState := evalProgramU(uprog, initialState)
+  // finalState available for proofs / inspection
+END FUNCTION
+
+FUNCTION main()
+  source := READ_FILE("test.pseudo")
+  compileAndRun(source)
+END FUNCTION
+
+END PROGRAM
