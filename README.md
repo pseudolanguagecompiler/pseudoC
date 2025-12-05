@@ -168,10 +168,10 @@ Parser/
 └── UniversalParser.lean # Grammar-agnostic pseudocode parser
 
 Codegen/
-└── ToLean.lean # Lean function code generation
+└── ToLean.lean # Lean function code generation (This is what will generate the code that will run on the vM)
 
 Proofs/
-└── Semantics.lean # Denotational theorems and proofs used for boostrapping via autoformalization (generate the verified compiler)
+└── Semantics.lean # Denotational theorems and proofs used for boostrapping (generate the verified compiler)
 
 Main.lean
 lakefile.lean
@@ -194,7 +194,7 @@ By defining semantics directly over UniversalIR, the system supports:
 - Referential transparency via recursion over ASTs  
 - Composability and algebraic reasoning over programs
 
-**Goal:** Formalize proofs of termination, correctness, and compositionality.
+**Goal:** Formalize proofs of termination, correctness, and compositionality and apply auto-formalization for more obscure grammars.
 
 ---
 
