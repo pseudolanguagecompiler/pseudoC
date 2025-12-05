@@ -139,7 +139,7 @@ Codegen/
 └── ToLean.lean # Lean function code generation
 
 Proofs/
-└── Semantics.lean # Denotational theorems and proofs
+└── Semantics.lean # Denotational theorems and proofs used for boostrapping via autoformalization (generate the verified compiler)
 
 Main.lean
 lakefile.lean
