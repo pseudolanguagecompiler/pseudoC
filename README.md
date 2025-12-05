@@ -1,12 +1,14 @@
 
 # λIR: Lambda IR, the Verified Compilation of Human Pseudocode into Intermediate Language
 
-**Status**: ✅ Core pipeline compiles & runs. **Bootstrap theorems WIP** (Week 7).
-**Self-hosting**: `pseudo_c_boostrap.pseudo` → Lean4 compiler **(parser/codegen verified)**.
+**Status**: ✅ Core pipeline compiles & runs. .
 
-Join us on Libera Chat! ##pseudocompiler
+**λIR**: (LambdaIR) — *pronounced "LAMB-dair"*
+
+Join us on Libera Chat! ##pseudocompiler (our channel for now)
 
 ##### *We're trying to formalize the missing link between human pseudocode and verified execution by building the first compiler where Lean proves every parsed program has mathematically identical semantics regardless of syntax, solving education, AI reliability, and multi-paradigm research problems in one framework.*
+
 ---
 
 ## What is λIR & Why Should You Care?
