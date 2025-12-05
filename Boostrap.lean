@@ -1,6 +1,7 @@
 /-
 Bootstrap.lean
-Formal theorem-driven bootstrap for the PseudoC compiler.
+Pure Lean 4 theorem proving self-bootstrapping compiler equivalence.
+No external LLMs, no PSV, no notebooks - just Lean theorems. We will NOT use LLMs here.
 -/
 
 import PseudoC.UniversalIR
@@ -11,37 +12,32 @@ open PseudoC
 
 namespace Bootstrap
 
-/-- 
-An abstract specification of a compiler:
-maps pseudocode text → executable Lean program with preserved semantics.
--/
-structure CompilerSpec :=
-  (compile : String → Program)
-  (sound   : ∀ ps, Semantics.run (compile ps) = Semantics.evalPseudo ps)
+/-- Compiler specification: text → verified executable semantics -/
+structure CompilerSpec where
+  compile : String → Program
+  sound   : ∀ ps, Semantics.run (compile ps) = Semantics.evalPseudo ps
 
-/--
-The autoformalization procedure: produces a *Lean‑verified*
-specification identical in observable semantics to the original.
--/
-def autoformalize (C : CompilerSpec) : CompilerSpec :=
+/-- Bootstrapping step: prove new compiler inherits original semantics -/
+def bootstrap (C : CompilerSpec) : CompilerSpec :=
   { compile := C.compile
-    sound   := by
-      intro ps
-      -- Refinement proof can call PSV loop logs & equivalence checks
-      have eq₁ : Semantics.evalPseudo ps = Semantics.run (C.compile ps) := (C.sound ps).symm
-      rw [eq₁]
-      rfl }
+    sound   := by intro ps; exact C.sound ps }
 
-/--
-Main theorem: The autoformalized compiler preserves semantics exactly.
-⟦Autoformalized⟧ ≡ ⟦Original⟧
--/
-theorem auto_equiv (C : CompilerSpec) :
-    Semantics.equivalent C (autoformalize C) :=
-  by
-    intro ps
-    calc
-      Semantics.run ((autoformalize C).compile ps)
-        = Semantics.run (C.compile ps) := rfl
-      _ = Semantics.evalPseudo ps := (C.sound ps)
-      _ = Semantics.eval
+/-- Core theorem: bootstrapped compiler ≡ original compiler -/
+theorem bootstrap_equiv (C : CompilerSpec) :
+    Semantics.equivalent C (bootstrap C) := by
+  intro ps
+  rw [bootstrap.compile, C.sound ps]
+  rw [← C.sound ps]
+  rfl
+
+/-- Extract the self-verified bootstrapped compiler -/
+def BootstrappedCompiler : CompilerSpec :=
+  let original : CompilerSpec := ⟨Codegen.compile, Codegen.soundness⟩
+  bootstrap original
+
+/-- Theorem: Bootstrapped compiler is sound -/
+theorem bootstrapped_sound :
+    ∀ ps, Semantics.run (BootstrappedCompiler.compile ps) = Semantics.evalPseudo ps :=
+  BootstrappedCompiler.sound
+
+end Bootstrap
