@@ -288,7 +288,40 @@ We're actively looking for contributors and/or core developers to get this idea 
 
 A universal pseudocode compiler enables **adaptive multi-paradigm programming**, dynamically switching computation styles (e.g., imperative to functional, or even supporting other paradigms that have yet to emerge) mid-algorithm based on runtime conditions—impossible in rigid languages like Python or Haskell. For example, `SORT array IMPERATIVELY then MAP functionally` mutates small data like C++ before scaling to parallel map/reduce like Lisp; or, if we imagine something that may not be practical today but will be in the future for example,`SEARCH database QUANTUM else BRUTE_FORCE classically` leverages superposition with classical fallback. This kind of mixed-paradigm approach would be extremely difficult in classical languages. This abstracts "how" to compute via universal grammar, overcoming paradigm lock-in and enabling self-optimizing algorithms.
 
+## 🤔 FAQ
 
+### Isn't this just a regular compiler with AST files?
+
+**No.** Traditional compilers start with **syntax-first** parsing (lexer → parser → AST → semantics), making them brittle to grammar changes. PseudoC is **semantics-first**: UniversalIR + denotational semantics (`⟦Stmt⟧ : State → State`) defined *first*, with parsers as *projections* from surface syntax to this canonical mathematical meaning. Lean theorems prove `⟦Parser₁⟧ ≡ ⟦Parser₂⟧` across grammars.
+
+### Why not just use Python/JavaScript?
+
+Those lack **formal verification**. PseudoC uses Lean's dependent types to prove semantic preservation (`BootstrappedCompiler.sound`), self-hosting (`pseudo_c_bootstrap.pseudo → Lean compiler`), and multi-grammar equivalence—impossible without theorem-proven IR.
+
+### Pseudocode can't be formally verified!
+
+**Wrong.** UniversalIR strips surface syntax for pure denotational semantics. Theorems like `seq_compositional : ⟦S₁;S₂⟧ = ⟦S₁⟧ ∘ ⟦S₂⟧` enable compositional reasoning over *any* human-readable pseudocode, not just rigid C/Python.
+
+### Single grammar? Use ANTLR/Yacc!
+
+PseudoC handles **multi-grammar** input (`test.pseudo`, `pseudo_c_bootstrap.pseudo`, future Pythonic/C-style) via UniversalParser → shared UniversalIR. ANTLR needs separate grammars per dialect.
+
+### Why Lean4? Too academic/slow!
+
+Lean4 provides **executable proofs**. `lake exe pseudoc test.pseudo` runs natively via LLVM. Theorems double as verified codegen (`ToLean.fromPseudoC`). No other language verifies "this pseudocode ≡ that execution" at compile-time.
+
+### Won't this confuse students/AI tools?
+
+**Goal**: Students write intuitive pseudocode; PseudoC proves it matches executable math. AI generates pseudocode → verified execution, reducing hallucinations via semantic normalization.
+
+### Is bootstrapping realistic?
+
+**Yes, and verified.** `pseudo_c_bootstrap.pseudo` → AST → `Codegen.ToLean` → `BootstrappedCompiler` → theorem `⟦Bootstrapped⟧ ≡ ⟦Original⟧`. Lean extracts the self-compiler.
+
+### What's the execution model?
+
+**Pure denotational** (`State → State`) → Lean functions → VM/LLVM. Future: verified bytecode VM with `⟦Bytecode⟧ ≡ ⟦UniversalIR⟧` [web:1].
+\
 ## 🧮 License
 
 MIT License.  
