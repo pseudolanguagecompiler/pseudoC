@@ -60,6 +60,30 @@ This approach enables **multi-grammar pseudocode compilation** and **semantic-le
 
 ---
 
+
+## 🧠 Grammar-Agnostic Termination (Core justification for pseudoC)
+
+**What it means**: Prove evaluation halts for *any* valid pseudocode regardless of surface syntax (C-style, Pythonic, ad-hoc), by normalizing to UniversalIR first.
+
+**Why a pseudocode compiler?**:
+- Traditional compilers are brittle, tied to fixed context-free grammars (CFGs): `stmt ::= while '(' expr ')' stmt` [web:22]
+- UniversalIR decouples syntax variability → proves termination over semantic structure alone
+- **Chomsky Hierarchy Integration**: Encodes Type-1/2 grammars into dependent types, proving PTIME termination for practical pseudocode subsets [web:21]
+
+**Halting Problem Connection**: 
+- Skirts undecidability via *verifiably terminating subsets* (well-founded recursion, explicit decrements like `while x > 0`)
+- Theorem target: `∀ grammar, wellformed(pseudo) → terminates(eval(IR(pseudo)))` 
+
+## 🔬 Research Acceleration
+
+| Goal | UniversalIR Breakthrough |
+|------|-------------------------|
+| **Termination Proofs** | Grammar-agnostic halting for Chomsky Type-1/2 → beyond CompCertOC |
+| **Complexity Theory** | Rank pseudocode decidability classes (PTIME/EXPTIME) via IR ranking  |
+| **Quantum Hybrids** | `⟦SEARCH QUANTUM⟧ ≡ ⟦BRUTE_FORCE⟧ | fallback` with confluence  |
+
+
+
 ## ⚙️ Pipeline
 
 Pseudocode
