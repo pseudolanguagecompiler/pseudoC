@@ -5,7 +5,7 @@
 
 **λIR**: (LambdaIR) — *pronounced "LAMB-dair"* 
 
-##### *We're trying to formalize the missing link between human pseudocode and verified execution by building the first compiler where Lean proves every parsed program has mathematically identical semantics regardless of syntax, solving education, AI reliability, and multi-paradigm research problems in one framework.*
+##### *We're trying to formalize the missing link between human pseudocode and verified execution by building the first compiler where Lean proves every parsed program has mathematically identical semantics regardless of syntax, solving education, AI reliability, and multi-paradigm research problems in one framework. Roadmap is to autoformalize weights of LLMs into Lean4 compiler as an intermediate representation that can be used to compile pseudocode*
 
 **Status**: ✅ Core pipeline compiles & runs. .
 
