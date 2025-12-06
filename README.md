@@ -18,7 +18,7 @@
 | **Problem** | **Traditional Compilers** | **λIR (UniversalIR)** | **Your Win** |
 |-------------|---------------------------|-----------------------|--------------|
 | **Write pseudocode** | `set x=5; while x>0 print x; x--` → manual → C/Python | **Parses directly** → math proofs → code | **0 syntax learning** |
-| **AI code gen** | Hallucinations, wrong semantics | **Semantic normalization** → verified | **Reliable AI code** [web:1] |
+| **AI code gen** | Hallucinations, wrong semantics | **Semantic normalization** → verified | **Eliminate hallucinations in code generation**  |
 | **Teach algorithms** | Students write pseudocode → ? → test | **Students write → lake exe λIR → runs** | **Executable homeworks**|
 | **Multi-language** | Rewrite per target | **One pseudocode → Lean/C/JS/Future paradigm** | **Paradigm freedom**|
 | **Verification** | Unit tests miss bugs | **Lean proves `⟦pseudocode⟧ ≡ execution`** | **Math-level correctness** |
